@@ -1,0 +1,391 @@
+/* General Reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Ensure the body and html take full height */
+html, body {
+    height: 100%;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Body Styling */
+body {
+    font-family: 'Poppins', sans-serif;
+    line-height: 1.6;
+    color: #333;
+    background: linear-gradient(to bottom, rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.5)), url('background.jpg') no-repeat center center fixed;
+    background-size: cover;
+    padding: 0 20px;
+}
+
+/* Header Styling */
+header {
+    color: white;
+    padding: 20px 0;
+    text-align: center;
+    border-radius: 8px;
+}
+
+header h1 {
+    font-size: 2.5rem;
+    margin-bottom: 10px;
+    font-weight: 700;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+nav ul {
+    list-style: none;
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    padding: 10px 0;
+}
+
+nav ul li button {
+    background: rgba(255, 255, 255, 0.2); /* Transparent button */
+    border: 2px solid white;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    font-size: 1rem;
+    padding: 10px 20px;
+    border-radius: 20px;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(5px); /* Adds a glassmorphism effect */
+}
+
+nav ul li button:hover {
+    background: rgba(255, 255, 255, 0.5);
+    color: #007BFF;
+}
+
+/* Main Content Styling */
+main {
+    flex: 1;
+    margin: 20px 0;
+}
+
+/* Hide all sections by default */
+main section {
+    display: none;
+}
+
+/* Show the active section */
+main section.active {
+    display: block;
+}
+
+section {
+    margin-bottom: 40px;
+    padding: 20px;
+    background: transparent;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+section h2 {
+    font-size: 1.8rem;
+    margin-bottom: 10px;
+    color: #007BFF;
+}
+
+section p {
+    font-size: 1rem;
+    line-height: 1.5;
+}
+
+/* Hide all sections by default */
+.tab-content {
+    display: none;
+}
+
+/* Show the active section */
+.tab-content.active {
+    display: block;
+}
+
+/* Tab Content Styling */
+.tab-content {
+    margin: 20px 0;
+    padding: 30px;
+    background: rgba(255, 255, 255, 0.2); /* Semi-transparent white background */
+    border-radius: 12px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    animation: fadeIn 0.5s ease-in-out;
+    backdrop-filter: blur(10px); /* Adds a glassmorphism effect */
+}
+
+.tab-content h2 {
+    font-size: 2rem;
+    margin-bottom: 15px;
+    color: #007BFF;
+    font-weight: 600;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.tab-content p {
+    font-size: 1.1rem;
+    line-height: 1.8;
+    margin-bottom: 15px;
+    color: white;
+}
+
+.tab-content ul {
+    list-style: disc;
+    padding-left: 20px;
+}
+
+.tab-content ul li {
+    font-size: 1rem;
+    margin-bottom: 10px;
+}
+
+/* Footer Styling */
+footer {
+    text-align: center;
+    padding: 10px 0;
+    background: rgba(255, 255, 255, 0.2); /* Semi-transparent footer */
+    color: white;
+    font-size: 0.9rem;
+    position: relative;
+    bottom: 0;
+    width: 100%;
+    border-radius: 8px;
+    backdrop-filter: blur(10px); /* Adds a glassmorphism effect */
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    header h1 {
+        font-size: 2rem;
+    }
+
+    nav ul {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    nav ul li button {
+        font-size: 0.9rem;
+        padding: 8px 15px;
+    }
+
+    .tab-content h2 {
+        font-size: 1.5rem;
+    }
+
+    .tab-content p {
+        font-size: 1rem;
+    }
+
+    section h2 {
+        font-size: 1.5rem;
+    }
+}
+
+/* Admin Panel Styling */
+#admin {
+    margin-top: 20px;
+}
+
+#add-tour-form {
+    margin-bottom: 20px;
+}
+
+#add-tour-form input {
+    margin-right: 10px;
+    padding: 5px;
+    font-size: 1rem;
+    background: rgba(255, 255, 255, 0.8); /* Semi-transparent input */
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+#add-tour-form button {
+    padding: 5px 10px;
+    font-size: 1rem;
+    background-color: rgba(0, 123, 255, 0.8); /* Semi-transparent button */
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+#add-tour-form button:hover {
+    background-color: rgba(0, 123, 255, 1);
+}
+
+#admin-tour-list {
+    list-style: none;
+    padding: 0;
+}
+
+#admin-tour-list li {
+    margin-bottom: 10px;
+    padding: 10px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 5px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+#admin-tour-list button {
+    margin-left: 10px;
+    padding: 5px 10px;
+    font-size: 0.9rem;
+    background-color: rgba(220, 53, 69, 0.8); /* Semi-transparent delete button */
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+#admin-tour-list button.edit-tour {
+    background-color: rgba(255, 193, 7, 0.8); /* Semi-transparent edit button */
+    color: black;
+}
+
+#admin-tour-list button:hover {
+    opacity: 0.9;
+}
+
+#admin-tour-list button.delete-tour {
+    background: #dc3545;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.9rem;
+}
+
+#admin-tour-list button.delete-tour:hover {
+    background: #a71d2a;
+}
+
+/* Admin Login Form */
+#admin-login-form {
+    margin-top: 20px;
+}
+
+#admin-login-form input {
+    margin-right: 10px;
+    padding: 5px;
+    font-size: 1rem;
+}
+
+#admin-login-form button {
+    padding: 5px 10px;
+    font-size: 1rem;
+    background-color: #007BFF;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+#admin-login-form button:hover {
+    background-color: #0056b3;
+}
+
+#login-error {
+    margin-top: 10px;
+    font-size: 0.9rem;
+    color: red;
+}
+
+/* Tour Cards Section */
+.tour-cards {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.tour-card {
+    background: rgba(255, 255, 255, 0.2); /* Semi-transparent background */
+    border-radius: 12px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    width: 300px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    backdrop-filter: blur(10px); /* Glassmorphism effect */
+}
+
+.tour-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+.tour-card img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+}
+
+.tour-info {
+    padding: 20px;
+    text-align: center;
+}
+
+.tour-info h3 {
+    font-size: 1.5rem;
+    color: #007BFF;
+    margin-bottom: 10px;
+}
+
+.tour-info p {
+    font-size: 1rem;
+    margin-bottom: 10px;
+    color: white;
+}
+
+.book-now {
+    background: #007BFF;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background 0.3s ease;
+}
+
+.book-now:hover {
+    background: #0056b3;
+}
+
+.delete-tour {
+    background: #dc3545;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1rem;
+    margin-top: 10px;
+    transition: background 0.3s ease;
+}
+
+.delete-tour:hover {
+    background: #a71d2a;
+}
