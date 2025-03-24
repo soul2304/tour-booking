@@ -1,204 +1,118 @@
-document.addEventListener("DOMContentLoaded", () => {
-    const tabLinks = document.querySelectorAll(".tab-link");
-    const tabContents = document.querySelectorAll(".tab-content");
-    const adminLoginForm = document.getElementById("admin-login-form");
-    const adminUsernameInput = document.getElementById("admin-username");
-    const adminPasswordInput = document.getElementById("admin-password");
-    const loginError = document.getElementById("login-error");
-    const adminPanel = document.getElementById("admin");
-    const adminLoginSection = document.getElementById("admin-login");
-    const backgroundForm = document.getElementById("background-form");
-    const backgroundUrlInput = document.getElementById("background-url");
-    const logoutButton = document.getElementById("logout-button");
-    const tourCardsContainer = document.querySelector(".tour-cards");
-    const adminTourList = document.getElementById("admin-tour-list");
-    const addTourForm = document.getElementById("add-tour-form");
-    const tourNameInput = document.getElementById("tour-name");
-    const tourDurationInput = document.getElementById("tour-duration");
-    const tourDescriptionInput = document.getElementById("tour-description");
-    const tourImageUrlInput = document.getElementById("tour-image-url");
+require('dotenv').config();
+const express = require('express');
+const bodyParser = require('body-parser');
+const cors = require('cors');
+const { MongoClient, ObjectId } = require('mongodb'); // Import MongoDB client
+const path = require('path'); // Import path module
 
-    // Hardcoded admin credentials
-    const adminCredentials = {
-        username: "admin",
-        password: "password123"
-    };
+const app = express();
+const PORT = process.env.PORT || 5000; // Use Render's dynamic port or fallback to 5000
 
-    // Ensure "Our Tours" tab is always open by default
-    const openDefaultTab = () => {
-        tabContents.forEach(content => {
-            content.style.display = "none"; // Hide all sections
-        });
-        document.getElementById("tours").style.display = "block"; // Show "Our Tours" section
-    };
+// Middleware
+app.use(bodyParser.json());
+app.use(cors({ origin: '*' })); // Allow all origins
 
-    // Load saved data from localStorage
-    const loadSavedData = () => {
-        // Load tours
-        const savedTours = JSON.parse(localStorage.getItem("tours")) || [];
-        savedTours.forEach(tour => {
-            addTourToPage(tour.name, tour.duration, tour.description, tour.imageUrl);
-            addTourToAdminList(tour.name, tour.duration, tour.description, tour.imageUrl);
-        });
+// Serve static files
+const staticPath = path.join(__dirname, 'public'); // Adjust 'public' to your static files directory
+app.use(express.static(staticPath));
 
-        // Load background image
-        const savedBackground = localStorage.getItem("backgroundImage");
-        if (savedBackground) {
-            document.body.style.backgroundImage = `url('${savedBackground}')`;
-            document.body.style.backgroundSize = "cover";
-            document.body.style.backgroundRepeat = "no-repeat";
-        }
-    };
+// Fallback for client-side routing
+app.get('*', (req, res) => {
+    res.sendFile(path.join(staticPath, 'index.html'));
+});
 
-    // Save tours to localStorage
-    const saveToursToLocalStorage = () => {
-        const tours = [];
-        tourCardsContainer.querySelectorAll(".tour-card").forEach(card => {
-            const name = card.querySelector("h3").textContent;
-            const duration = card.querySelector("p:nth-child(2)").textContent;
-            const description = card.querySelector("p:nth-child(3)").textContent;
-            const imageUrl = card.querySelector("img").src;
-            tours.push({ name, duration, description, imageUrl });
-        });
-        localStorage.setItem("tours", JSON.stringify(tours));
-    };
+// MongoDB connection
+const uri = `mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PASS}@cluster0.mongodb.net/tourBooking?retryWrites=true&w=majority`;
+const client = new MongoClient(uri);
+let db, toursCollection, adminCollection;
 
-    // Add a tour to the "Our Tours" section
-    const addTourToPage = (name, duration, description, imageUrl) => {
-        const tourCard = document.createElement("div");
-        tourCard.classList.add("tour-card");
-        tourCard.innerHTML = `
-            <img src="${imageUrl}" alt="${name}">
-            <div class="tour-info">
-                <h3>${name}</h3>
-                <p>${duration}</p>
-                <p>${description}</p>
-                <button class="book-now">Book Now</button>
-            </div>
-        `;
-        tourCardsContainer.appendChild(tourCard);
-    };
+async function connectToDatabase() {
+    try {
+        await client.connect();
+        db = client.db('tourBooking');
+        toursCollection = db.collection('tours');
+        adminCollection = db.collection('admins');
+        console.log('Connected to MongoDB Atlas');
+    } catch (err) {
+        console.error('MongoDB connection error:', err);
+        process.exit(1); // Exit the process if the database connection fails
+    }
+}
+connectToDatabase();
 
-    // Add a tour to the admin panel list
-    const addTourToAdminList = (name, duration, description, imageUrl) => {
-        const adminTourItem = document.createElement("li");
-        adminTourItem.innerHTML = `
-            ${name} - ${duration}
-            <button class="delete-tour">Delete</button>
-        `;
-        adminTourList.appendChild(adminTourItem);
+// Routes
+// Get all tours
+app.get('/api/tours', async (req, res) => {
+    try {
+        const tours = await toursCollection.find().toArray();
+        res.json(tours);
+    } catch (err) {
+        res.status(500).json({ message: 'Error fetching tours from MongoDB' });
+    }
+});
 
-        // Add event listener for the delete button
-        const deleteButton = adminTourItem.querySelector(".delete-tour");
-        deleteButton.addEventListener("click", () => {
-            // Remove from admin list
-            adminTourItem.remove();
+// Add a new tour
+app.post('/api/tours', async (req, res) => {
+    const { title, description, price } = req.body;
+    try {
+        const result = await toursCollection.insertOne({ title, description, price });
+        res.status(201).json(result.ops[0]); // Return the newly created tour
+    } catch (err) {
+        res.status(500).json({ message: 'Error adding tour to MongoDB' });
+    }
+});
 
-            // Remove from "Our Tours" section
-            const tourCards = Array.from(tourCardsContainer.querySelectorAll(".tour-card"));
-            const tourToDelete = tourCards.find(card => card.querySelector("h3").textContent === name);
-            if (tourToDelete) {
-                tourToDelete.remove();
-            }
-
-            // Save changes to localStorage
-            saveToursToLocalStorage();
-        });
-    };
-
-    // Tab switching functionality
-    tabLinks.forEach(link => {
-        link.addEventListener("click", () => {
-            const targetTab = link.getAttribute("data-tab");
-            const targetContent = document.getElementById(targetTab);
-
-            // Toggle visibility of the clicked tab
-            if (targetContent.style.display === "block") {
-                targetContent.style.display = "none";
-            } else {
-                // Hide all sections and show the selected one
-                tabContents.forEach(content => {
-                    content.style.display = "none";
-                });
-                targetContent.style.display = "block";
-            }
-
-            // If the admin tab is clicked, show the login form if not authenticated
-            if (targetTab === "admin" && !adminPanel.classList.contains("authenticated")) {
-                adminLoginSection.style.display = "block";
-                adminPanel.style.display = "none";
-            }
-        });
-    });
-
-    // Handle admin login
-    adminLoginForm.addEventListener("submit", (e) => {
-        e.preventDefault();
-
-        const username = adminUsernameInput.value.trim();
-        const password = adminPasswordInput.value.trim();
-
-        if (username === adminCredentials.username && password === adminCredentials.password) {
-            // Successful login
-            adminLoginSection.style.display = "none";
-            adminPanel.style.display = "block";
-            adminPanel.classList.add("authenticated");
-            loginError.style.display = "none";
+// Edit a tour
+app.put('/api/tours/:id', async (req, res) => {
+    const { id } = req.params;
+    const { title, description, price } = req.body;
+    try {
+        const result = await toursCollection.findOneAndUpdate(
+            { _id: new ObjectId(id) },
+            { $set: { title, description, price } },
+            { returnDocument: 'after' }
+        );
+        if (result.value) {
+            res.json(result.value);
         } else {
-            // Invalid credentials
-            loginError.style.display = "block";
+            res.status(404).json({ message: 'Tour not found in MongoDB' });
         }
-    });
+    } catch (err) {
+        res.status(500).json({ message: 'Error updating tour in MongoDB' });
+    }
+});
 
-    // Handle adding a new tour
-    addTourForm.addEventListener("submit", (e) => {
-        e.preventDefault();
-
-        const name = tourNameInput.value.trim();
-        const duration = tourDurationInput.value.trim();
-        const description = tourDescriptionInput.value.trim();
-        const imageUrl = tourImageUrlInput.value.trim();
-
-        if (name && duration && description && imageUrl) {
-            addTourToPage(name, duration, description, imageUrl);
-            addTourToAdminList(name, duration, description, imageUrl);
-            saveToursToLocalStorage(); // Save changes to localStorage
-            addTourForm.reset();
+// Delete a tour
+app.delete('/api/tours/:id', async (req, res) => {
+    const { id } = req.params;
+    try {
+        const result = await toursCollection.deleteOne({ _id: new ObjectId(id) });
+        if (result.deletedCount > 0) {
+            res.json({ message: 'Tour deleted from MongoDB' });
+        } else {
+            res.status(404).json({ message: 'Tour not found in MongoDB' });
         }
-    });
+    } catch (err) {
+        res.status(500).json({ message: 'Error deleting tour from MongoDB' });
+    }
+});
 
-    // Handle background image change
-    backgroundForm.addEventListener("submit", (e) => {
-        e.preventDefault();
-
-        const backgroundUrl = backgroundUrlInput.value.trim();
-        if (backgroundUrl) {
-            document.body.style.backgroundImage = `url('${backgroundUrl}')`;
-            document.body.style.backgroundSize = "contain";
-            document.body.style.backgroundRepeat = "no-repeat";
-            localStorage.setItem("backgroundImage", backgroundUrl); // Save background to localStorage
-            backgroundUrlInput.value = ""; // Clear the input field
+// Admin login
+app.post('/api/admin/login', async (req, res) => {
+    const { username, password } = req.body;
+    try {
+        const admin = await adminCollection.findOne({ username, password });
+        if (admin) {
+            res.json({ message: 'Login successful' });
+        } else {
+            res.status(401).json({ message: 'Invalid credentials' });
         }
-    });
+    } catch (err) {
+        res.status(500).json({ message: 'Error during admin login in MongoDB' });
+    }
+});
 
-    // Handle admin logout
-    logoutButton.addEventListener("click", () => {
-        // Hide the admin panel
-        adminPanel.style.display = "none";
-        adminPanel.classList.remove("authenticated");
-
-        // Show the login form
-        adminLoginSection.style.display = "block";
-
-        // Reset the login form
-        adminUsernameInput.value = "";
-        adminPasswordInput.value = "";
-        loginError.style.display = "none";
-    });
-
-    // Load saved data on page load
-    loadSavedData();
-
-    // Open the default tab ("Our Tours")
-    openDefaultTab();
+// Start server
+app.listen(PORT, () => {
+    console.log(`Server running on http://localhost:${PORT}`);
 });
