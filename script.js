@@ -118,16 +118,11 @@ document.addEventListener("DOMContentLoaded", () => {
             const targetTab = link.getAttribute("data-tab");
             const targetContent = document.getElementById(targetTab);
 
-            // Toggle visibility of the clicked tab
-            if (targetContent.style.display === "block") {
-                targetContent.style.display = "none";
-            } else {
-                // Hide all sections and show the selected one
-                tabContents.forEach(content => {
-                    content.style.display = "none";
-                });
-                targetContent.style.display = "block";
-            }
+            // Hide all sections and show the selected one
+            tabContents.forEach(content => {
+                content.style.display = "none"; // Hide all sections
+            });
+            targetContent.style.display = "block"; // Show the selected section
 
             // If the admin tab is clicked, show the login form if not authenticated
             if (targetTab === "admin" && !adminPanel.classList.contains("authenticated")) {
