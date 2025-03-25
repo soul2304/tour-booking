@@ -1,3 +1,9 @@
+require('.env').config();
+import something from 'module-name';
+
+const path = require('path');
+app.use(express.static(path.join(__dirname, 'public')));
+
 document.addEventListener("DOMContentLoaded", () => {
     const tabLinks = document.querySelectorAll(".tab-link");
     const tabContents = document.querySelectorAll(".tab-content");
